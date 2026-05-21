@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends "base.html" %}
+{% block content %}
+<h2>Sales Transactions</h2>
+<button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#addSaleModal">+ New Sale</button>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr><th>Sale ID</th><th>Patient</th><th>Pharmacist</th><th>Total ($)</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+        {% for s in sales %}
+        <tr>
+            <td>{{ s.sale_id }}</td><td>{{ s.patient.name if s.patient else 'N/A' }}</td>
+            <td>{{ s.pharmacist.name if s.pharmacist else 'N/A' }}</td>
+            <td>{{ s.total_amount }}</td><td>{{ s.sale_date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- New Sale Modal -->
+<div class="modal fade modal-lg" id="addSaleModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/add_sale" id="saleForm">
+                <div class="modal-header"><h5>New Sale</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <select name="patient_id" class="form-control mb-2" required>
+                        <option value="">Select Patient</option>{% for p in patients %}<option value="{{ p.patient_id }}">{{ p.name }}</option>{% endfor %}
+                    </select>
+                    <select name="pharmacist_id" class="form-control mb-2" required>
+                        <option value="">Select Pharmacist</option>{% for ph in pharmacists %}<option value="{{ ph.pharmacist_id }}">{{ ph.name }}</option>{% endfor %}
+                    </select>
+                    <select name="prescription_id" class="form-control mb-2">
+                        <option value="">Without Prescription</option>{% for pr in prescriptions %}<option value="{{ pr.prescription_id }}">Rx #{{ pr.prescription_id }}</option>{% endfor %}
+                    </select>
+                    <h5>Drug Items</h5>
+                    <div id="drugItems">
+                        <div class="row mb-2 drug-item">
+                            <div class="col"><select name="drug_id[]" class="form-control" required><option value="">Select Drug</option>{% for d in drugs %}<option value="{{ d.drug_id }}">{{ d.name }} - ${{ d.price }} (Stock: {{ d.stock_qty }})</option>{% endfor %}</select></div>
+                            <div class="col"><input type="number" name="quantity[]" class="form-control" placeholder="Qty" required></div>
+                            <div class="col"><button type="button" class="btn btn-danger remove-item">Remove</button></div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm mt-2" id="addMoreDrugs">+ Add Another Drug</button>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-success">Complete Sale</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('addMoreDrugs').addEventListener('click', function() {
+    const container = document.getElementById('drugItems');
+    const newItem = container.children[0].cloneNode(true);
+    newItem.querySelectorAll('input').forEach(i => i.value = '');
+    newItem.querySelector('select').value = '';
+    container.appendChild(newItem);
+});
+document.addEventListener('click', function(e) {
+    if(e.target.classList.contains('remove-item')) {
+        if(document.querySelectorAll('.drug-item').length > 1) {
+            e.target.closest('.drug-item').remove();
+        } else {
+            alert('At least one drug item is required');
+        }
+    }
+});
+</script>
+{% endblock %}
+</body>
+</html>

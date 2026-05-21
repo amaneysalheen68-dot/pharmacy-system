@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Pharmacy System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .register-header i {
+            font-size: 60px;
+            color: #667eea;
+        }
+        .register-header h2 {
+            margin-top: 10px;
+            color: #333;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.25);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .role-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .role-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+        }
+        .role-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .role-card i {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        .role-card.admin i { color: #dc3545; }
+        .role-card.pharmacist i { color: #28a745; }
+        .password-strength {
+            height: 5px;
+            margin-top: 8px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <div class="register-header">
+            <i class="bi bi-person-plus-fill"></i>
+            <h2>Create Account</h2>
+            <p class="text-muted">Join PharmaCare System</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                        <i class="bi {% if category == 'success' %}bi-check-circle{% elif category == 'danger' %}bi-exclamation-triangle{% else %}bi-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-person"></i> Full Name</label>
+                <input type="text" name="full_name" class="form-control" placeholder="Enter your full name" required autofocus>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-person-badge"></i> Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Choose a username" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-lock"></i> Password</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Create a password" required>
+                <div class="password-strength" id="passwordStrength"></div>
+                <small class="text-muted">Minimum 4 characters</small>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-lock-fill"></i> Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                <div id="passwordMatch" class="small mt-1"></div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-shield-check"></i> Select Role</label>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="role-card text-center pharmacist" data-role="pharmacist" onclick="selectRole('pharmacist')">
+                            <i class="bi bi-person-workspace"></i>
+                            <h6 class="mb-0">Pharmacist</h6>
+                            <small class="text-muted">Sales & Prescriptions</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="role-card text-center admin" data-role="admin" onclick="selectRole('admin')">
+                            <i class="bi bi-shield-lock"></i>
+                            <h6 class="mb-0">Admin</h6>
+                            <small class="text-muted">Full Access</small>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="role" id="selectedRole" value="pharmacist" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-register">
+                <i class="bi bi-person-plus"></i> Create Account
+            </button>
+        </form>
+        
+        <div class="login-link">
+            <p class="mb-0">Already have an account? <a href="/login" class="text-decoration-none">Login here</a></p>
+        </div>
+        
+        <hr class="my-3">
+        
+        <div class="text-center">
+            <small class="text-muted">
+                <i class="bi bi-info-circle"></i> 
+                Admin accounts can manage all settings. Pharmacist accounts can process sales and create prescriptions.
+            </small>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Select role function
+        function selectRole(role) {
+            document.querySelectorAll('.role-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`.role-card.${role}`).classList.add('selected');
+            document.getElementById('selectedRole').value = role;
+        }
+        
+        // Password strength meter
+        const passwordInput = document.getElementById('password');
+        const strengthDiv = document.getElementById('passwordStrength');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 4) strength++;
+            if (password.length >= 8) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            let colors = ['#dc3545', '#ffc107', '#28a745', '#20c997', '#17a2b8'];
+            let widths = ['20%', '40%', '60%', '80%', '100%'];
+            
+            if (password.length === 0) {
+                strengthDiv.style.backgroundColor = '#e0e0e0';
+                strengthDiv.style.width = '0%';
+            } else {
+                strengthDiv.style.backgroundColor = colors[Math.min(strength, colors.length - 1)];
+                strengthDiv.style.width = widths[Math.min(strength, widths.length - 1)];
+            }
+        });
+        
+        // Password match check
+        const confirmInput = document.getElementById('confirmPassword');
+        const matchDiv = document.getElementById('passwordMatch');
+        
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+            
+            if (confirm.length === 0) {
+                matchDiv.innerHTML = '';
+                matchDiv.className = 'small mt-1';
+            } else if (password === confirm) {
+                matchDiv.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> Passwords match!';
+                matchDiv.className = 'small mt-1 text-success';
+            } else {
+                matchDiv.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i> Passwords do not match!';
+                matchDiv.className = 'small mt-1 text-danger';
+            }
+        }
+        
+        passwordInput.addEventListener('input', checkPasswordMatch);
+        confirmInput.addEventListener('input', checkPasswordMatch);
+        
+        // Select default role
+        selectRole('pharmacist');
+    </script>
+</body>
+</html>

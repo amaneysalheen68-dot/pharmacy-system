@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaCare - Pharmacy Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .sidebar-header h3 i {
+            color: #667eea;
+        }
+        
+        .sidebar-header p {
+            margin: 8px 0 0;
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+        
+        .user-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-info .user-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .user-info .user-name i {
+            margin-right: 5px;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .role-badge.admin {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .role-badge.pharmacist {
+            background: #28a745;
+            color: white;
+        }
+        
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+        
+        .sidebar-nav .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 0.8rem 1.5rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            padding-left: 1.8rem;
+            border-left-color: #667eea;
+        }
+        
+        .sidebar-nav .nav-link.active {
+            background: linear-gradient(90deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%);
+            color: white;
+            border-left-color: #ffd700;
+        }
+        
+        .sidebar-nav .nav-link i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+        
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-footer .logout-link {
+            color: #ff6b6b;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-footer .logout-link:hover {
+            background: rgba(255,107,107,0.1);
+            padding-left: 15px;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px 30px;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background: white;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        
+        .toast {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .btn {
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        
+        .table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 12px;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(102,126,234,0.05);
+        }
+        
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        
+        .modal-header {
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .modal-header .btn-close {
+            background: white;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1100;
+                background: var(--primary-gradient);
+                border: none;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 8px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.25);
+        }
+    </style>
+</head>
+<body>
+
+<button class="btn menu-toggle" id="menuToggle">
+    <i class="bi bi-list"></i> Menu
+</button>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h3><i class="bi bi-capsule"></i> PharmaCare</h3>
+        <p>Pharmacy Management System</p>
+        
+        {% if session.username %}
+        <div class="user-info">
+            <div class="user-name">
+                <i class="bi bi-person-circle"></i> {{ session.full_name }}
+            </div>
+            <div class="mt-2">
+                <span class="role-badge {{ session.role }}">
+                    <i class="bi {% if session.role == 'admin' %}bi-shield-lock{% else %}bi-shield-check{% endif %}"></i>
+                    {{ session.role|upper }}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="sidebar-nav">
+        <a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a href="/patients" class="nav-link {% if request.endpoint == 'patients' %}active{% endif %}">
+            <i class="bi bi-people"></i> Patients
+        </a>
+        <a href="/doctors" class="nav-link {% if request.endpoint == 'doctors' %}active{% endif %}">
+            <i class="bi bi-person-badge"></i> Doctors
+        </a>
+        
+        <!-- Pharmacists: فقط الأدمن -->
+        {% if session.role == 'admin' %}
+        <a href="/pharmacists" class="nav-link {% if request.endpoint == 'pharmacists' %}active{% endif %}">
+            <i class="bi bi-person-workspace"></i> Pharmacists
+        </a>
+        {% endif %}
+        
+        <a href="/drugs" class="nav-link {% if request.endpoint == 'drugs' %}active{% endif %}">
+            <i class="bi bi-capsule"></i> Drugs Inventory
+        </a>
+        <a href="/prescriptions" class="nav-link {% if request.endpoint == 'prescriptions' %}active{% endif %}">
+            <i class="bi bi-file-medical"></i> Prescriptions
+        </a>
+        
+        <!-- Sales: الصيدلي والأدمن -->
+        {% if session.role == 'pharmacist' or session.role == 'admin' %}
+        <a href="/sales" class="nav-link {% if request.endpoint == 'sales' %}active{% endif %}">
+            <i class="bi bi-cart-check"></i> Sales
+        </a>
+        {% endif %}
+        
+        <!-- Reports: فقط الأدمن -->
+        {% if session.role == 'admin' %}
+        <a href="/reports" class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}">
+            <i class="bi bi-bar-chart-steps"></i> Reports
+        </a>
+        {% endif %}
+        
+        <!-- Users: فقط الأدمن -->
+        {% if session.role == 'admin' %}
+        <a href="/users" class="nav-link {% if request.endpoint == 'users' %}active{% endif %}">
+            <i class="bi bi-people-fill"></i> Users
+        </a>
+        {% endif %}
+    </div>
+    
+    <div class="sidebar-footer">
+        <a href="/logout" class="logout-link">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</div>
+
+<div class="main-content" id="mainContent">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="toast-container">
+                {% for category, message in messages %}
+                    <div class="toast show" role="alert" data-bs-autohide="true" data-bs-delay="4000">
+                        <div class="toast-header 
+                            {% if category == 'success' %}bg-success text-white
+                            {% elif category == 'danger' %}bg-danger text-white
+                            {% elif category == 'warning' %}bg-warning
+                            {% else %}bg-info text-white{% endif %}">
+                            <i class="bi 
+                                {% if category == 'success' %}bi-check-circle-fill
+                                {% elif category == 'danger' %}bi-exclamation-triangle-fill
+                                {% elif category == 'warning' %}bi-exclamation-circle-fill
+                                {% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                            <strong class="me-auto">Notification</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            {{ message }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="fade-in-up">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    var toastList = toastElList.map(function(toastEl) {
+        return new bootstrap.Toast(toastEl, { delay: 4000, autohide: true });
+    });
+    toastList.forEach(toast => toast.show());
+    
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('show');
+            if (sidebar.classList.contains('show')) {
+                mainContent.style.opacity = '0.5';
+            } else {
+                mainContent.style.opacity = '1';
+            }
+        });
+    }
+    
+    document.addEventListener('click', function(event) {
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('show');
+                mainContent.style.opacity = '1';
+            }
+        }
+    });
+    
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+</script>
+</body>
+</html>

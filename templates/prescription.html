@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends "base.html" %}
+{% block content %}
+<h2>Prescriptions</h2>
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPrescriptionModal">+ Create Prescription</button>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Issue Date</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+        {% for p in prescriptions %}
+        <tr>
+            <td>{{ p.prescription_id }}</td>
+            <td>{{ p.patient.name if p.patient else 'N/A' }}</td>
+            <td>{{ p.doctor.name if p.doctor else 'N/A' }}</td>
+            <td>{{ p.issue_date }}</td>
+            <td>{{ p.notes }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="addPrescriptionModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/add_prescription">
+                <div class="modal-header"><h5>Create Prescription</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <select name="patient_id" class="form-control mb-2" required>
+                        <option value="">Select Patient</option>
+                        {% for p in patients %}<option value="{{ p.patient_id }}">{{ p.name }}</option>{% endfor %}
+                    </select>
+                    <select name="doctor_id" class="form-control mb-2" required>
+                        <option value="">Select Doctor</option>
+                        {% for d in doctors %}<option value="{{ d.doctor_id }}">{{ d.name }}</option>{% endfor %}
+                    </select>
+                    <input type="date" name="issue_date" class="form-control mb-2" required>
+                    <textarea name="notes" class="form-control mb-2" placeholder="Notes / Medicine List"></textarea>
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Save</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>

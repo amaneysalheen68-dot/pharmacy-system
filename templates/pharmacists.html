@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% extends "base.html" %}
+{% block content %}
+<h2>Manage Pharmacists</h2>
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPharmacistModal">+ Add Pharmacist</button>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr><th>ID</th><th>Name</th><th>Phone</th><th>Shift</th><th>License No</th></tr>
+    </thead>
+    <tbody>
+        {% for p in pharmacists %}
+        <tr>
+            <td>{{ p.pharmacist_id }}</td><td>{{ p.name }}</td><td>{{ p.phone }}</td>
+            <td>{{ p.shift }}</td><td>{{ p.license_no }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="addPharmacistModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/add_pharmacist">
+                <div class="modal-header"><h5>Add Pharmacist</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="text" name="name" class="form-control mb-2" placeholder="Full Name" required>
+                    <input type="text" name="phone" class="form-control mb-2" placeholder="Phone">
+                    <select name="shift" class="form-control mb-2">
+                        <option value="Morning">Morning</option><option value="Evening">Evening</option><option value="Night">Night</option>
+                    </select>
+                    <input type="text" name="license_no" class="form-control mb-2" placeholder="License Number">
+                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Save</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<h2><i class="bi bi-person-badge"></i> Manage Doctors</h2>
+
+{% if session.role == 'admin' %}
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addDoctorModal">
+    <i class="bi bi-person-plus"></i> Add Doctor
+</button>
+{% endif %}
+
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th><th>Name</th><th>Specialisation</th><th>Phone</th><th>License No</th>
+            {% if session.role == 'admin' %}<th>Actions</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for d in doctors %}
+        <tr>
+            <td>{{ d.doctor_id }}</td>
+            <td>{{ d.name }}</td>
+            <td>{{ d.specialisation }}</td>
+            <td>{{ d.phone }}</td>
+            <td>{{ d.license_no }}</td>
+            {% if session.role == 'admin' %}
+            <td>
+                <a href="/delete_doctor/{{ d.doctor_id }}" class="btn btn-sm btn-danger" 
+                   onclick="return confirm('Delete this doctor?')">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if session.role == 'admin' %}
+<div class="modal fade" id="addDoctorModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="/add_doctor">
+                <div class="modal-header">
+                    <h5><i class="bi bi-person-plus"></i> Add Doctor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" name="name" class="form-control mb-2" placeholder="Full Name" required>
+                    <input type="text" name="specialisation" class="form-control mb-2" placeholder="Specialisation">
+                    <input type="text" name="phone" class="form-control mb-2" placeholder="Phone">
+                    <input type="text" name="license_no" class="form-control mb-2" placeholder="License Number">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
