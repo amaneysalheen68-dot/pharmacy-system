@@ -26,7 +26,7 @@ PharmaCare is a complete web-based pharmacy management system built with Flask f
 - Database: SQLite with SQLAlchemy ORM
 - Frontend: Bootstrap 5
 - Authentication: Session-based with password hashing
-- Containerization: Docker (Bonus)
+- Containerization: Docker 
 
 ## Database Structure
 
@@ -80,7 +80,7 @@ Pharmacist Accounts (Limited Access):
 - Username: pharmacist2
 - Password: 123456
 
-## Docker Setup (Optional Bonus)
+## Docker Setup 
 
 If you have Docker installed:
 
@@ -151,14 +151,6 @@ Issue: Module not found errors
 
 Solution: Make sure you installed all required libraries with pip install -r requirements.txt
 
-## How to Contribute
-
-1. Fork the repository
-2. Create a new branch for your feature
-3. Make your changes
-4. Commit your changes
-5. Push to your branch
-6. Open a pull request
 
 ## License
 
@@ -169,13 +161,5 @@ This project is for educational purposes as part of a faculty assignment.
 GitHub: amaneysalheen68-dot
 Project Link: https://github.com/amaneysalheen68-dot/pharmacy-system
 
-## Acknowledgments
-
-- Flask Framework
-- Bootstrap Team
-- SQLAlchemy
-- All team members
-
----
 
 Made with Python and Flask for the Web Application Development Course
